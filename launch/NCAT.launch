@@ -1,0 +1,59 @@
+<launch>
+<!-- Currently only 2d positions are supported as ouput (UTM) -->
+<!--     <arg name="UTMdatum_E" default="659300"/>
+    <arg name="UTMdatum_N" default="3607850"/> -->
+
+
+<!--     <param name="UTMdatum_E" value="$(arg UTMdatum_E)"/>
+    <param name="UTMdatum_N" value="$(arg UTMdatum_N)"/> -->
+    
+<!--     <param name="UTMdatum_E" value="659300" type="double"/>
+    <param name="UTMdatum_N" value="3607850" type="double"/>
+ -->
+
+<!--   <node name="tf_track_local" pkg="tf" type="static_transform_publisher"
+  args="$(arg UTMdatum_E) $(arg UTMdatum_N) 0.0 0 0 0 /utm /track 100"
+  required="true" output="screen" /> -->
+
+    <!-- lane markers -->
+    <node pkg="ncat_survey" type="survey_node.py" name="survey_lanes" output="screen">
+        <param name="file_locs" value="$(find ncat_survey)/survey/stripes/inner.txt, $(find ncat_survey)/survey/stripes/middle.txt, $(find ncat_survey)/survey/stripes/outer.txt"/>
+        <param name="delimiter" value=" "/>
+        <remap from="survey" to="survey/stripes"/>
+        <param name="frame_id" value="utm"/>
+        <param name="coord_sys_input" value="LLA"/>
+        <!-- display -->
+        <param name="scale" value="0.1, 0.1, 0.4"/>
+        <param name="marker" value="CUBE"/>
+        <param name="rgba" value="255, 255, 0, 1"/>
+
+        <!-- <arg name="UTMdatum_N" default="3607850"/> -->
+    </node>
+
+    <!-- lane centers -->
+    <node pkg="ncat_survey" type="survey_node.py" name="survey_centers" output="screen">
+        <param name="file_locs" value="$(find ncat_survey)/survey/centers/inner.txt, $(find ncat_survey)/survey/centers/outer.txt"/>
+        <param name="delimiter" value=" "/>
+        <remap from="survey" to="survey/centers"/>
+        <param name="frame_id" value="utm"/>
+        <param name="coord_sys_input" value="LLA"/>
+        <!-- display -->
+        <param name="scale" value="0.2, 0.2, 0.2"/>
+        <param name="marker" value="SPHERE"/>
+        <param name="rgba" value="255, 255, 255, 0.75"/>
+
+    </node>
+
+    <!-- track mesh -->
+    <node pkg="ncat_survey" type="survey_node.py" name="track_mesh" output="screen">
+        <!-- <param name="prefix" value="$(find ncat_survey)"/> -->
+        <param name="position" value="0, 0, 0"/>
+        <remap from="survey" to="survey/track_mesh"/>
+        <param name="frame_id" value="utm"/>
+        <param name="coord_sys_input" value="LLA"/>
+        <!-- display -->
+        <param name="marker" value="file://$(find ncat_survey)/mesh/NCAT_pavement_plane.stl"/>
+        <param name="rgba" value="100, 100, 100, 1"/>
+    </node>
+
+</launch>
