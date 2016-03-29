@@ -1,13 +1,22 @@
 #!/usr/bin/env python
 """
 Creates an OSM file with two ways: one for the center of each lane. The ways are
-closed (first == last)
+closed (first == last). No tags are added.
+
+Requires osmium library and python wrapper. Available here:
+  https://github.com/osmcode/libosmium
+  https://github.com/osmcode/pyosmium
+These work as of the time of writing, but the above libraries are still under 
+heavy development
 
 Usage:
   python centers_to_osm.py </path/to/destination.osm>
 
 This file can be extended so that it will output any of the survey circuits with 
 some intelligent command line parsing.
+
+Robert Cofield
+2016-03-29
 """
 import osmium
 import os, sys
