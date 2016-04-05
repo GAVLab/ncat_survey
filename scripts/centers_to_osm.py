@@ -18,8 +18,9 @@ some intelligent command line parsing.
 Robert Cofield
 2016-03-29
 """
-import osmium
+import osmwriter
 import os, sys
+from copy import deepcopy as dcp
 
 survey_centers_dir = os.path.join(os.path.dirname(__file__), '..', 'survey', 'centers')
 lane_center_file_names = [os.path.join(survey_centers_dir, name) for name in ('inner.txt', 'outer.txt')]
@@ -39,19 +40,24 @@ for center_file_name in lane_center_file_names:
       pts.append([float(val) for val in line.split()])
   data.append(pts)
 
-writer = osmium.SimpleWriter(destination_file_name)
+writer = osmwriter.OSMWriter(destination_file_name)
 version = int(1)
 uuid = 1
 for way_ in data:
-  this_way_nodes = []
+  way_ids = []
+  way_node0_uuid = None
   for pt in way_:
-    # lon, lat
-    node = osmium.osm.mutable.Node(location=(pt[1], pt[0]), id=uuid, version=version)
-    this_way_nodes.append(node)
-    writer.add_node(node)
+    # lat, lon
+    writer.node(uuid, pt[0], pt[1], version=version)
+    way_ids.append(uuid)
+    if len(way_ids) == 1:
+      # this is the first node in the way. We want the way to be closed since 
+      # the track is circular, so save this uuid for later to append it to the
+      # end of the way's uuid's.
+      way_node0_uuid = dcp(uuid)
     uuid += 1
   # add the first node to the end since we know this is a nice perfect loop
-  this_way_nodes.append(this_way_nodes[0])
-  writer.add_way(osmium.osm.mutable.Way(nodes=[node.id for node in this_way_nodes], id=uuid, version=version))
+  way_ids.append(way_node0_uuid)
+  writer.way(uuid, {}, way_ids, version=version)
   uuid += 1
 writer.close()
